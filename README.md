@@ -1,2 +1,3 @@
 # diurnal-terminal
-Automatically switch macOS Terminal theme at sunrise and sunset
+
+Automatically switch macOS Terminal theme at sunrise and sunset.
