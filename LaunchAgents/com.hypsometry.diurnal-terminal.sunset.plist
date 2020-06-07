@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>Label</key>
+    <string>com.hypsometry.diurnal-terminal.sunset</string>
+
+    <key>StartCalendarInterval</key>
+    <dict>
+      <key>Hour</key>
+      <integer>12</integer>
+    </dict>
+
+    <key>Program</key>
+    <string>$(brew --prefix)/bin/diurnal-terminal sunset</string>
+
+    <key>StandardOutPath</key>
+    <string>/var/log/com.hypsometry.diurnal-terminal.sunset.log</string>
+    <key>StandardErrorPath</key>
+    <string>/var/log/com.hypsometry.diurnal-terminal.sunset.log</string>
+</dict>
+</plist>
