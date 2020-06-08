@@ -1,5 +1,4 @@
 #!/bin/bash
-set -e
 
 while read -r LINE; do declare "$LINE"; done < ~/.config/diurnal-terminal.conf
 
@@ -16,4 +15,4 @@ fi
 
 echo "Waiting for $EVENT $OFFSET to switch to $THEME."
 
-"$(brew --prefix)"/bin/heliocron --latitude "$LATITUDE" --longitude "$LONGITUDE" wait --event "$EVENT" --offset "$OFFSET"; osascript ~/Library/Application\ Support/com.hypsometry.diurnal-terminal/scripts/switch-terminal-theme.scpt "$THEME"
+"$(brew --prefix)"/bin/heliocron --latitude "$LATITUDE" --longitude "$LONGITUDE" wait --event "$EVENT" --offset "$OFFSET"; osascript "$(brew --prefix)"/bin/diurnal-terminal-switch-theme "$THEME"
