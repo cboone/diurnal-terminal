@@ -1,6 +1,9 @@
 #!/bin/bash
 
-while read -r LINE; do declare "$LINE"; done < ~/.config/diurnal-terminal.conf
+# https://stackoverflow.com/questions/10929453/read-a-file-line-by-line-assigning-the-value-to-a-variable
+while IFS='' read -r LINE || [[ -n "$LINE" ]]
+    do declare "$LINE"
+done < ~/.config/diurnal-terminal.conf
 
 HOUR=$(date '+%H')
 if [ "$HOUR" -ge 12 ]; then
