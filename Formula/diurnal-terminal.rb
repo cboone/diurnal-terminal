@@ -1,6 +1,6 @@
 class DiurnalTerminal < Formula
   desc "Automatically switch Terminal themes at sunrise and sunset"
-  homepage "https://github.com/cboone/diurnal-terminal" # TODO: create readme
+  homepage "https://github.com/cboone/diurnal-terminal"
   version "0.1.0"
   url "https://github.com/cboone/diurnal-terminal/archive/v#{version}.tar.gz"
   sha256 "837da6a2e8f461b0a950e208dfa5d8f8fffabaab9482dd41a662efbb3cb987aa"
