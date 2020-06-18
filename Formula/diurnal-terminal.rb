@@ -1,9 +1,9 @@
 class DiurnalTerminal < Formula
   desc "Automatically switch Terminal themes at sunrise and sunset"
   homepage "https://github.com/cboone/diurnal-terminal" # TODO: create readme
-  version "0.0.3" # TODO: update
+  version "0.1.0"
   url "https://github.com/cboone/diurnal-terminal/archive/v#{version}.tar.gz"
-  sha256 "ae66a53385164577f6dd2ad249c05f8de053709e95221bd8529c604f84a83a1b"
+  sha256 "837da6a2e8f461b0a950e208dfa5d8f8fffabaab9482dd41a662efbb3cb987aa"
   head "https://github.com/cboone/diurnal-terminal.git", :branch => "main"
 
   depends_on "heliocron"
