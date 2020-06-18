@@ -1,0 +1,123 @@
+#!/bin/bash
+# shellcheck disable=SC2199
+# set -x
+
+readonly command_run_time=$(date '+%H:%M:%S')
+readonly script_name=$(basename "$0")
+readonly homebrew_prefix=${HOMEBREW_PREFIX:-$(brew --prefix)}
+readonly plist_name="homebrew.mxcl.$script_name"
+readonly args=( "$@" )
+readonly usage=$(cat <<EOF
+$script_name: Automatically switch Terminal themes at sunrise and sunset
+
+Usage:
+  $script_name (-h|--help)          Show this screen
+  $script_name --overwrite-plist    Create new plist scheduled for the next event
+  $script_name --print-plist        Print plist scheduled for the next event
+  $script_name --restart-agent      Kickstart the LaunchAgent
+  $script_name --update-theme       Ensure current theme is set correctly
+
+Options:
+  -v|--verbose                          Log output
+  --debug                               Log more output
+EOF
+)
+
+[[ " ${args[@]} " =~ ( --debug ) ]] && readonly debug=debug
+debug() { [[ $debug ]] && echo "$@"; }
+[[ " ${args[@]} " =~ ( --verbose | -v ) ]] && readonly verbose=verbose
+log() { [[ $verbose || $debug ]] && echo "$@"; }
+die() { echo "$@"; exit 1; }
+
+# shellcheck disable=SC2199
+if (( $# == 0 )) || [[ " ${args[@]} " =~ ( --help | -h ) ]]; then
+  # printf '%s\n\n' "$usage"
+  # exit 1
+  die "$usage" '\n\n'
+fi
+
+# https://stackoverflow.com/questions/10929453/read-a-file-line-by-line-assigning-the-value-to-a-variable
+config="$HOME/.config/$script_name.conf"
+[[ ! -e $config ]] && die "Config not found: $config"
+debug "$config"
+debug "$(cat "$config")"
+debug ''
+while IFS='' read -r line || [[ -n "$line" ]]; do
+  readonly "$line"
+done < "$config"
+
+readonly heliocron_output=$("$homebrew_prefix"/bin/heliocron --latitude "$LATITUDE" --longitude "$LONGITUDE" report)
+debug "$heliocron_output"
+debug ''
+readonly sunrise_time=${heliocron_output:20:8}
+readonly sunset_time=${heliocron_output:55:8}
+if [[ $command_run_time < $sunset_time ]] && \
+   [[ ! $command_run_time < $sunrise_time ]]; then
+    readonly event=sunset
+    readonly current_theme=$DAY_THEME
+    readonly next_theme=$NIGHT_THEME
+    readonly next_time=$sunset_time
+else
+  readonly event=sunrise
+  readonly current_theme=$NIGHT_THEME
+  readonly next_theme=$DAY_THEME
+  readonly next_time=$sunrise_time
+fi
+
+readonly cellar="${HOMEBREW_CELLAR:-"$homebrew_prefix/Cellar"}/$script_name"
+readonly latest="$(find "$cellar" -maxdepth 1 -type d | sort -nr | head -n 1)"
+
+overwrite_plist() {
+  readonly home_plist="$HOME/Library/LaunchAgents/$plist_name.plist"
+  readonly cellar_plist="$latest/$plist_name.plist"
+  print_plist | tee "$home_plist" "$cellar_plist"
+}
+
+print_plist() {
+  readonly template="$latest/share/$plist_name.template.plist"
+  [[ ! -e $template ]] && die "plist template not found: $template"
+
+  log "Switching to $next_theme at $event ($next_time)"
+  m4 -DHOUR="${next_time:0:2}" \
+     -DMINUTE="${next_time:3:2}" \
+     -DSECOND="${next_time:6:2}" \
+     -DBIN_PATH="$homebrew_prefix/bin/$script_name" \
+     -DPLIST_LABEL="$plist_name" \
+     "$template"
+}
+
+restart_agent() {
+  if [[ ${command_run_time:0:5} = "${sunrise_time:0:5}" ]] \
+     || [[ ${command_run_time:0:5} = "${sunset_time:0:5}" ]]; then
+    launchctl kickstart -kp "gui/$(id -u)/$plist_name"
+  fi
+}
+
+update_theme() {
+  log "Switching to $current_theme"
+  osascript "$homebrew_prefix"/bin/switch-terminal-theme "$current_theme"
+}
+
+while (( $# > 0 )); do
+  case $1 in
+  --overwrite-plist)
+    overwrite_plist
+    shift
+    ;;
+  --print-plist)
+    print_plist
+    shift
+    ;;
+  --restart-agent)
+    restart_agent
+    shift
+    ;;
+  --update-theme)
+    update_theme
+    shift
+    ;;
+  *)
+    shift
+    ;;
+  esac
+done
