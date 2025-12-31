@@ -25,3 +25,38 @@ Start the service:
 ```bash
 brew services start diurnal-terminal
 ```
+
+## Development
+
+Install from the local formula:
+
+```bash
+brew install --formula ./Formula/diurnal-terminal.rb
+```
+
+Reinstall after changes:
+
+```bash
+brew reinstall --formula ./Formula/diurnal-terminal.rb
+```
+
+Install from HEAD (uses git instead of tagged tarball):
+
+```bash
+brew install --HEAD --formula ./Formula/diurnal-terminal.rb
+```
+
+Test and audit the formula:
+
+```bash
+brew test ./Formula/diurnal-terminal.rb
+brew audit --formula ./Formula/diurnal-terminal.rb
+```
+
+Test the scripts directly without installing:
+
+```bash
+./scripts/diurnal-terminal --print-plist
+./scripts/diurnal-terminal --debug --print-plist
+osascript ./scripts/diurnal-terminal-switch-theme.applescript "Nord"
+```
