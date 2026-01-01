@@ -24,9 +24,9 @@ EOF
 )
 
 [[ " ${args[@]} " =~ ( --debug ) ]] && readonly debug=debug
-debug() { [[ $debug ]] && echo "$@"; }
+debug() { [[ $debug ]] && echo "$@" >&2; }
 [[ " ${args[@]} " =~ ( --verbose | -v ) ]] && readonly verbose=verbose
-log() { [[ $verbose || $debug ]] && echo "$@"; }
+log() { [[ $verbose || $debug ]] && echo "$@" >&2; }
 die() { echo "$@"; exit 1; }
 
 # shellcheck disable=SC2199
