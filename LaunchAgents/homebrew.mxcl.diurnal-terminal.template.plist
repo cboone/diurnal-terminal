@@ -18,7 +18,7 @@
   <key>EnvironmentVariables</key>
   <dict>
     <key>PATH</key>
-    <string>/usr/local/bin:/usr/bin:/bin</string>
+    <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
   </dict>
 
   <key>ProgramArguments</key>
@@ -26,7 +26,7 @@
     <string>BIN_PATH</string>
     <string>--debug</string>
     <string>--overwrite-plist</string>
-    <string>--restart-plist</string>
+    <string>--restart-agent</string>
     <string>--update-theme</string>
   </array>
 

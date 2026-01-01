@@ -10,6 +10,7 @@ class DiurnalTerminal < Formula
   def install
     bin.install "scripts/diurnal-terminal"
     bin.install "scripts/diurnal-terminal-switch-theme.applescript" => "switch-terminal-theme"
+    (share).install "LaunchAgents/homebrew.mxcl.diurnal-terminal.template.plist"
   end
 
   test do

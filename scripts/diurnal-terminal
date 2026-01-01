@@ -87,10 +87,18 @@ print_plist() {
 }
 
 restart_agent() {
-  if [[ ${command_run_time:0:5} = "${sunrise_time:0:5}" ]] \
-     || [[ ${command_run_time:0:5} = "${sunset_time:0:5}" ]]; then
-    launchctl kickstart -kp "gui/$(id -u)/$plist_name"
-  fi
+  local plist_path="$HOME/Library/LaunchAgents/$plist_name.plist"
+  local domain="gui/$(id -u)"
+
+  log "Reloading LaunchAgent for next event"
+
+  # Background the reload to avoid killing ourselves while running
+  (
+    sleep 1
+    launchctl bootout "$domain/$plist_name" 2>/dev/null
+    launchctl bootstrap "$domain" "$plist_path"
+  ) &
+  disown
 }
 
 update_theme() {
