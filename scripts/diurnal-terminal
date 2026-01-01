@@ -51,8 +51,12 @@ debug "$heliocron_output"
 debug ''
 readonly sunrise_time=${heliocron_output:20:8}
 readonly sunset_time=${heliocron_output:55:8}
-if [[ $command_run_time < $sunset_time ]] && \
-   [[ ! $command_run_time < $sunrise_time ]]; then
+# Compare only HH:MM to avoid timing edge cases when triggered at exact second
+readonly current_hhmm=${command_run_time:0:5}
+readonly sunrise_hhmm=${sunrise_time:0:5}
+readonly sunset_hhmm=${sunset_time:0:5}
+if [[ $current_hhmm < $sunset_hhmm ]] && \
+   [[ ! $current_hhmm < $sunrise_hhmm ]]; then
     readonly event=sunset
     readonly current_theme=$DAY_THEME
     readonly next_theme=$NIGHT_THEME
