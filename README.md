@@ -38,10 +38,11 @@ diurnal-terminal --restart-agent      Reload the LaunchAgent
 diurnal-terminal --update-theme       Apply the correct theme for the current time
 
 Options:
-  -v|--verbose          Log output
-  --debug               Log more output
-  --time HH:MM:SS       Override trigger time (for plist generation)
-  --theme THEME         Override theme (for plist and update-theme)
+  -v|--verbose              Log output
+  --debug                   Log more output
+  --time HH:MM:SS           Override trigger time (for plist generation)
+  --day-theme THEME         Override day theme from config
+  --night-theme THEME       Override night theme from config
 ```
 
 ### Examples
@@ -52,12 +53,6 @@ Apply the correct theme for the current time of day:
 diurnal-terminal --update-theme
 ```
 
-Apply a specific theme immediately:
-
-```bash
-diurnal-terminal --theme "Nord" --update-theme
-```
-
 Preview the plist that would be generated:
 
 ```bash
@@ -66,10 +61,16 @@ diurnal-terminal --print-plist
 
 ### Testing
 
-Schedule a test trigger for a specific time with a specific theme:
+Schedule a test trigger for a specific time with custom themes:
 
 ```bash
-diurnal-terminal --time 14:30:00 --theme "Nord" --overwrite-plist --restart-agent
+diurnal-terminal --time 14:30:00 --day-theme "Solarized Light" --night-theme "Nord" --overwrite-plist --restart-agent
+```
+
+Test with theme overrides (uses day or night based on current time):
+
+```bash
+diurnal-terminal --day-theme "Test Light" --night-theme "Test Dark" --update-theme
 ```
 
 Watch the log to see when it triggers:
