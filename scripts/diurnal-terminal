@@ -86,6 +86,12 @@ print_plist() {
 
   local schedule_time="${custom_time:-$next_time}"
   local theme_args=""
+  local run_at_load="<true/>"
+
+  if [[ -n $custom_time ]]; then
+    run_at_load="<false/>"
+  fi
+
   if [[ -n $theme ]]; then
     theme_args="    <string>--theme</string>
     <string>$theme</string>"
@@ -102,6 +108,7 @@ print_plist() {
      -DBIN_PATH="$homebrew_prefix/bin/$script_name" \
      -DPLIST_LABEL="$plist_name" \
      -DTHEME_ARGS="$theme_args" \
+     -DRUN_AT_LOAD="$run_at_load" \
      "$template"
 }
 

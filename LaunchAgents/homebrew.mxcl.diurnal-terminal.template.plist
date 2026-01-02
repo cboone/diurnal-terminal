@@ -32,7 +32,7 @@ THEME_ARGS
   </array>
 
   <key>RunAtLoad</key>
-  <true/>
+  RUN_AT_LOAD
 
   <key>StandardErrorPath</key>
   <string>/tmp/PLIST_LABEL.log</string>
