@@ -26,6 +26,71 @@ Start the service:
 brew services start diurnal-terminal
 ```
 
+## Usage
+
+The script supports several commands and options:
+
+```
+diurnal-terminal (-h|--help)          Show help
+diurnal-terminal --overwrite-plist    Create new plist scheduled for the next event
+diurnal-terminal --print-plist        Print plist scheduled for the next event
+diurnal-terminal --restart-agent      Reload the LaunchAgent
+diurnal-terminal --update-theme       Apply the correct theme for the current time
+
+Options:
+  -v|--verbose          Log output
+  --debug               Log more output
+  --time HH:MM:SS       Override trigger time (for plist generation)
+  --theme THEME         Override theme (for plist and update-theme)
+```
+
+### Examples
+
+Apply the correct theme for the current time of day:
+
+```bash
+diurnal-terminal --update-theme
+```
+
+Apply a specific theme immediately:
+
+```bash
+diurnal-terminal --theme "Nord" --update-theme
+```
+
+Preview the plist that would be generated:
+
+```bash
+diurnal-terminal --print-plist
+```
+
+### Testing
+
+Schedule a test trigger for a specific time with a specific theme:
+
+```bash
+diurnal-terminal --time 14:30:00 --theme "Nord" --overwrite-plist --restart-agent
+```
+
+Watch the log to see when it triggers:
+
+```bash
+tail -f /tmp/homebrew.mxcl.diurnal-terminal.log
+```
+
+Check the LaunchAgent status:
+
+```bash
+launchctl print gui/$(id -u)/homebrew.mxcl.diurnal-terminal
+```
+
+## How It Works
+
+1. The script reads your coordinates from `~/.config/diurnal-terminal.conf`
+2. Uses [heliocron](https://github.com/mfreeborn/heliocron) to calculate sunrise/sunset times
+3. Generates a LaunchAgent plist scheduled for the next sun event
+4. When triggered, switches the Terminal theme and reschedules for the next event
+
 ## Development
 
 Install from the local formula:
