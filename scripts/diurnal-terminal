@@ -20,8 +20,8 @@ Usage:
 Options:
   -v|--verbose                          Log output
   --debug                               Log more output
-  --test-time HH:MM:SS                  Override next trigger time (for testing)
-  --test-theme THEME                    Override theme for next switch (for testing)
+  --time HH:MM:SS                       Override trigger time (for plist generation)
+  --theme THEME                         Override theme (for plist and update-theme)
 EOF
 )
 
@@ -30,8 +30,8 @@ debug() { [[ $debug ]] && echo "$@" >&2; }
 [[ " ${args[@]} " =~ ( --verbose | -v ) ]] && readonly verbose=verbose
 log() { [[ $verbose || $debug ]] && echo "$@" >&2; }
 die() { echo "$@"; exit 1; }
-test_time=""
-test_theme=""
+custom_time=""
+theme=""
 
 # shellcheck disable=SC2199
 if (( $# == 0 )) || [[ " ${args[@]} " =~ ( --help | -h ) ]]; then
@@ -84,17 +84,24 @@ print_plist() {
   readonly template="$latest/share/$plist_name.template.plist"
   [[ ! -e $template ]] && die "plist template not found: $template"
 
-  local schedule_time="${test_time:-$next_time}"
-  if [[ -n $test_time ]]; then
-    log "TEST MODE: Scheduling for $test_time"
+  local schedule_time="${custom_time:-$next_time}"
+  local theme_args=""
+  if [[ -n $theme ]]; then
+    theme_args="    <string>--theme</string>
+    <string>$theme</string>"
+    log "Will switch to $theme at $schedule_time"
+  elif [[ -n $custom_time ]]; then
+    log "Scheduling for $custom_time"
   else
     log "Switching to $next_theme at $event ($next_time)"
   fi
+
   m4 -DHOUR="${schedule_time:0:2}" \
      -DMINUTE="${schedule_time:3:2}" \
      -DSECOND="${schedule_time:6:2}" \
      -DBIN_PATH="$homebrew_prefix/bin/$script_name" \
      -DPLIST_LABEL="$plist_name" \
+     -DTHEME_ARGS="$theme_args" \
      "$template"
 }
 
@@ -117,13 +124,13 @@ restart_agent() {
 }
 
 update_theme() {
-  local theme="${test_theme:-$current_theme}"
-  if [[ -n $test_theme ]]; then
-    log "TEST MODE: Switching to $test_theme"
+  local selected_theme="${theme:-$current_theme}"
+  if [[ -n $theme ]]; then
+    log "Using specified theme: $theme"
   else
     log "Switching to $current_theme"
   fi
-  osascript "$homebrew_prefix"/bin/switch-terminal-theme "$theme"
+  osascript "$homebrew_prefix"/bin/switch-terminal-theme "$selected_theme"
 }
 
 while (( $# > 0 )); do
@@ -144,12 +151,12 @@ while (( $# > 0 )); do
     update_theme
     shift
     ;;
-  --test-time)
-    test_time="$2"
+  --time)
+    custom_time="$2"
     shift 2
     ;;
-  --test-theme)
-    test_theme="$2"
+  --theme)
+    theme="$2"
     shift 2
     ;;
   *)
