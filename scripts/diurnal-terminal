@@ -21,6 +21,7 @@ Options:
   -v|--verbose                          Log output
   --debug                               Log more output
   --test-time HH:MM:SS                  Override next trigger time (for testing)
+  --test-theme THEME                    Override theme for next switch (for testing)
 EOF
 )
 
@@ -30,6 +31,7 @@ debug() { [[ $debug ]] && echo "$@" >&2; }
 log() { [[ $verbose || $debug ]] && echo "$@" >&2; }
 die() { echo "$@"; exit 1; }
 test_time=""
+test_theme=""
 
 # shellcheck disable=SC2199
 if (( $# == 0 )) || [[ " ${args[@]} " =~ ( --help | -h ) ]]; then
@@ -115,8 +117,13 @@ restart_agent() {
 }
 
 update_theme() {
-  log "Switching to $current_theme"
-  osascript "$homebrew_prefix"/bin/switch-terminal-theme "$current_theme"
+  local theme="${test_theme:-$current_theme}"
+  if [[ -n $test_theme ]]; then
+    log "TEST MODE: Switching to $test_theme"
+  else
+    log "Switching to $current_theme"
+  fi
+  osascript "$homebrew_prefix"/bin/switch-terminal-theme "$theme"
 }
 
 while (( $# > 0 )); do
@@ -139,6 +146,10 @@ while (( $# > 0 )); do
     ;;
   --test-time)
     test_time="$2"
+    shift 2
+    ;;
+  --test-theme)
+    test_theme="$2"
     shift 2
     ;;
   *)
