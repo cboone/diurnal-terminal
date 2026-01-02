@@ -40,9 +40,10 @@ diurnal-terminal --update-theme       Apply the correct theme for the current ti
 Options:
   -v|--verbose              Log output
   --debug                   Log more output
-  --time HH:MM:SS           Override trigger time (for plist generation)
   --day-theme THEME         Override day theme from config
   --night-theme THEME       Override night theme from config
+  --run-at-load             Run immediately when agent loads (for initial setup)
+  --time HH:MM:SS           Override trigger time (for plist generation)
 ```
 
 ### Examples
