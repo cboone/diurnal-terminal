@@ -11,13 +11,13 @@ brew tap cboone/diurnal-terminal https://github.com/cboone/diurnal-terminal.git
 brew install diurnal-terminal
 ```
 
-Create `~/.config/diurnal-terminal.conf` and put something like this in it:
+Edit `~/.config/diurnal-terminal.conf` with your coordinates and themes:
 
 ```bash
 LATITUDE=37.783N
 LONGITUDE=122.417W
-NIGHT_THEME=GitHub Dark
 DAY_THEME=GitHub Light
+NIGHT_THEME=GitHub Dark
 ```
 
 Start the service:
@@ -25,6 +25,8 @@ Start the service:
 ```bash
 brew services start diurnal-terminal
 ```
+
+The config file is created automatically during installation with default values.
 
 ## Usage
 
