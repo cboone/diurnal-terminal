@@ -20,6 +20,7 @@ Usage:
 Options:
   -v|--verbose                          Log output
   --debug                               Log more output
+  --test-time HH:MM:SS                  Override next trigger time (for testing)
 EOF
 )
 
@@ -28,6 +29,7 @@ debug() { [[ $debug ]] && echo "$@" >&2; }
 [[ " ${args[@]} " =~ ( --verbose | -v ) ]] && readonly verbose=verbose
 log() { [[ $verbose || $debug ]] && echo "$@" >&2; }
 die() { echo "$@"; exit 1; }
+test_time=""
 
 # shellcheck disable=SC2199
 if (( $# == 0 )) || [[ " ${args[@]} " =~ ( --help | -h ) ]]; then
@@ -80,10 +82,15 @@ print_plist() {
   readonly template="$latest/share/$plist_name.template.plist"
   [[ ! -e $template ]] && die "plist template not found: $template"
 
-  log "Switching to $next_theme at $event ($next_time)"
-  m4 -DHOUR="${next_time:0:2}" \
-     -DMINUTE="${next_time:3:2}" \
-     -DSECOND="${next_time:6:2}" \
+  local schedule_time="${test_time:-$next_time}"
+  if [[ -n $test_time ]]; then
+    log "TEST MODE: Scheduling for $test_time"
+  else
+    log "Switching to $next_theme at $event ($next_time)"
+  fi
+  m4 -DHOUR="${schedule_time:0:2}" \
+     -DMINUTE="${schedule_time:3:2}" \
+     -DSECOND="${schedule_time:6:2}" \
      -DBIN_PATH="$homebrew_prefix/bin/$script_name" \
      -DPLIST_LABEL="$plist_name" \
      "$template"
@@ -129,6 +136,10 @@ while (( $# > 0 )); do
   --update-theme)
     update_theme
     shift
+    ;;
+  --test-time)
+    test_time="$2"
+    shift 2
     ;;
   *)
     shift
