@@ -73,8 +73,7 @@ readonly latest="$(find "$cellar" -maxdepth 1 -type d | sort -nr | head -n 1)"
 
 overwrite_plist() {
   readonly home_plist="$HOME/Library/LaunchAgents/$plist_name.plist"
-  readonly cellar_plist="$latest/$plist_name.plist"
-  print_plist | tee "$home_plist" "$cellar_plist"
+  print_plist | tee "$home_plist"
 }
 
 print_plist() {
@@ -93,14 +92,17 @@ print_plist() {
 restart_agent() {
   local plist_path="$HOME/Library/LaunchAgents/$plist_name.plist"
   local domain="gui/$(id -u)"
+  local log_file="/tmp/$plist_name.log"
 
   log "Reloading LaunchAgent for next event"
 
   # Background the reload to avoid killing ourselves while running
   (
     sleep 1
-    launchctl bootout "$domain/$plist_name" 2>/dev/null
-    launchctl bootstrap "$domain" "$plist_path"
+    launchctl bootout "$domain/$plist_name" 2>>"$log_file" || true
+    if ! launchctl bootstrap "$domain" "$plist_path" 2>>"$log_file"; then
+      echo "ERROR: Failed to bootstrap LaunchAgent" >>"$log_file"
+    fi
   ) &
   disown
 }
