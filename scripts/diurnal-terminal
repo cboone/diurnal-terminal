@@ -21,7 +21,8 @@ Options:
   -v|--verbose                          Log output
   --debug                               Log more output
   --time HH:MM:SS                       Override trigger time (for plist generation)
-  --theme THEME                         Override theme (for plist and update-theme)
+  --day-theme THEME                     Override day theme from config
+  --night-theme THEME                   Override night theme from config
 EOF
 )
 
@@ -31,7 +32,17 @@ debug() { [[ $debug ]] && echo "$@" >&2; }
 log() { [[ $verbose || $debug ]] && echo "$@" >&2; }
 die() { echo "$@"; exit 1; }
 custom_time=""
-theme=""
+day_theme=""
+night_theme=""
+
+# Parse theme overrides early (before config is read)
+for ((index=0; index<${#args[@]}; index++)); do
+  case "${args[index]}" in
+    --day-theme)   day_theme="${args[index+1]}" ;;
+    --night-theme) night_theme="${args[index+1]}" ;;
+    --time)        custom_time="${args[index+1]}" ;;
+  esac
+done
 
 # shellcheck disable=SC2199
 if (( $# == 0 )) || [[ " ${args[@]} " =~ ( --help | -h ) ]]; then
@@ -50,6 +61,10 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
   readonly "$line"
 done < "$config"
 
+# Apply command-line overrides
+readonly effective_day_theme="${day_theme:-$DAY_THEME}"
+readonly effective_night_theme="${night_theme:-$NIGHT_THEME}"
+
 readonly heliocron_output=$("$homebrew_prefix"/bin/heliocron --latitude "$LATITUDE" --longitude "$LONGITUDE" report)
 debug "$heliocron_output"
 debug ''
@@ -62,13 +77,13 @@ readonly sunset_hhmm=${sunset_time:0:5}
 if [[ $current_hhmm < $sunset_hhmm ]] && \
    [[ ! $current_hhmm < $sunrise_hhmm ]]; then
     readonly event=sunset
-    readonly current_theme=$DAY_THEME
-    readonly next_theme=$NIGHT_THEME
+    readonly current_theme=$effective_day_theme
+    readonly next_theme=$effective_night_theme
     readonly next_time=$sunset_time
 else
   readonly event=sunrise
-  readonly current_theme=$NIGHT_THEME
-  readonly next_theme=$DAY_THEME
+  readonly current_theme=$effective_night_theme
+  readonly next_theme=$effective_day_theme
   readonly next_time=$sunrise_time
 fi
 
@@ -86,17 +101,19 @@ print_plist() {
 
   local schedule_time="${custom_time:-$next_time}"
   local theme_args=""
-  local run_at_load="<true/>"
 
-  if [[ -n $custom_time ]]; then
-    run_at_load="<false/>"
+  if [[ -n $day_theme ]]; then
+    theme_args+="    <string>--day-theme</string>
+    <string>$day_theme</string>
+"
+  fi
+  if [[ -n $night_theme ]]; then
+    theme_args+="    <string>--night-theme</string>
+    <string>$night_theme</string>
+"
   fi
 
-  if [[ -n $theme ]]; then
-    theme_args="    <string>--theme</string>
-    <string>$theme</string>"
-    log "Will switch to $theme at $schedule_time"
-  elif [[ -n $custom_time ]]; then
+  if [[ -n $custom_time ]]; then
     log "Scheduling for $custom_time"
   else
     log "Switching to $next_theme at $event ($next_time)"
@@ -108,7 +125,7 @@ print_plist() {
      -DBIN_PATH="$homebrew_prefix/bin/$script_name" \
      -DPLIST_LABEL="$plist_name" \
      -DTHEME_ARGS="$theme_args" \
-     -DRUN_AT_LOAD="$run_at_load" \
+     -DRUN_AT_LOAD="<true/>" \
      "$template"
 }
 
@@ -131,13 +148,8 @@ restart_agent() {
 }
 
 update_theme() {
-  local selected_theme="${theme:-$current_theme}"
-  if [[ -n $theme ]]; then
-    log "Using specified theme: $theme"
-  else
-    log "Switching to $current_theme"
-  fi
-  osascript "$homebrew_prefix"/bin/switch-terminal-theme "$selected_theme"
+  log "Switching to $current_theme"
+  osascript "$homebrew_prefix"/bin/switch-terminal-theme "$current_theme"
 }
 
 while (( $# > 0 )); do
@@ -162,8 +174,12 @@ while (( $# > 0 )); do
     custom_time="$2"
     shift 2
     ;;
-  --theme)
-    theme="$2"
+  --day-theme)
+    day_theme="$2"
+    shift 2
+    ;;
+  --night-theme)
+    night_theme="$2"
     shift 2
     ;;
   *)
