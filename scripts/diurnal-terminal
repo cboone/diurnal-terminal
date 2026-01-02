@@ -6,7 +6,6 @@ readonly command_run_time=$(date '+%H:%M:%S')
 readonly script_name=$(basename "$0")
 readonly homebrew_prefix=${HOMEBREW_PREFIX:-$(brew --prefix)}
 readonly plist_name="homebrew.mxcl.$script_name"
-readonly args=( "$@" )
 readonly usage=$(cat <<EOF
 $script_name: Automatically switch Terminal themes at sunrise and sunset
 
@@ -26,32 +25,41 @@ Options:
 EOF
 )
 
-[[ " ${args[@]} " =~ ( --debug ) ]] && readonly debug=debug
+# Parse flags that affect logging
+[[ " $* " =~ " --debug " ]] && readonly debug=debug
 debug() { [[ $debug ]] && echo "$@" >&2; }
-[[ " ${args[@]} " =~ ( --verbose | -v ) ]] && readonly verbose=verbose
+[[ " $* " =~ ( --verbose | -v ) ]] && readonly verbose=verbose
 log() { [[ $verbose || $debug ]] && echo "$@" >&2; }
 die() { echo "$@"; exit 1; }
-custom_time=""
-day_theme=""
-night_theme=""
-
-# Parse theme overrides early (before config is read)
-for ((index=0; index<${#args[@]}; index++)); do
-  case "${args[index]}" in
-    --day-theme)   day_theme="${args[index+1]}" ;;
-    --night-theme) night_theme="${args[index+1]}" ;;
-    --time)        custom_time="${args[index+1]}" ;;
-  esac
-done
 
 # shellcheck disable=SC2199
-if (( $# == 0 )) || [[ " ${args[@]} " =~ ( --help | -h ) ]]; then
-  # printf '%s\n\n' "$usage"
-  # exit 1
+if (( $# == 0 )) || [[ " $* " =~ ( --help | -h ) ]]; then
   die "$usage" '\n\n'
 fi
 
-# https://stackoverflow.com/questions/10929453/read-a-file-line-by-line-assigning-the-value-to-a-variable
+# Parse all arguments first
+custom_time=""
+day_theme=""
+night_theme=""
+do_overwrite_plist=false
+do_print_plist=false
+do_restart_agent=false
+do_update_theme=false
+
+while (( $# > 0 )); do
+  case $1 in
+  --overwrite-plist) do_overwrite_plist=true; shift ;;
+  --print-plist)     do_print_plist=true; shift ;;
+  --restart-agent)   do_restart_agent=true; shift ;;
+  --update-theme)    do_update_theme=true; shift ;;
+  --time)            custom_time="$2"; shift 2 ;;
+  --day-theme)       day_theme="$2"; shift 2 ;;
+  --night-theme)     night_theme="$2"; shift 2 ;;
+  *)                 shift ;;
+  esac
+done
+
+# Read config
 config="$HOME/.config/$script_name.conf"
 [[ ! -e $config ]] && die "Config not found: $config"
 debug "$config"
@@ -65,21 +73,23 @@ done < "$config"
 readonly effective_day_theme="${day_theme:-$DAY_THEME}"
 readonly effective_night_theme="${night_theme:-$NIGHT_THEME}"
 
+# Calculate sun times
 readonly heliocron_output=$("$homebrew_prefix"/bin/heliocron --latitude "$LATITUDE" --longitude "$LONGITUDE" report)
 debug "$heliocron_output"
 debug ''
 readonly sunrise_time=${heliocron_output:20:8}
 readonly sunset_time=${heliocron_output:55:8}
-# Compare only HH:MM to avoid timing edge cases when triggered at exact second
+
+# Determine current theme based on time of day
 readonly current_hhmm=${command_run_time:0:5}
 readonly sunrise_hhmm=${sunrise_time:0:5}
 readonly sunset_hhmm=${sunset_time:0:5}
 if [[ $current_hhmm < $sunset_hhmm ]] && \
    [[ ! $current_hhmm < $sunrise_hhmm ]]; then
-    readonly event=sunset
-    readonly current_theme=$effective_day_theme
-    readonly next_theme=$effective_night_theme
-    readonly next_time=$sunset_time
+  readonly event=sunset
+  readonly current_theme=$effective_day_theme
+  readonly next_theme=$effective_night_theme
+  readonly next_time=$sunset_time
 else
   readonly event=sunrise
   readonly current_theme=$effective_night_theme
@@ -90,6 +100,7 @@ fi
 readonly cellar="${HOMEBREW_CELLAR:-"$homebrew_prefix/Cellar"}/$script_name"
 readonly latest="$(find "$cellar" -maxdepth 1 -type d | sort -nr | head -n 1)"
 
+# Functions
 overwrite_plist() {
   readonly home_plist="$HOME/Library/LaunchAgents/$plist_name.plist"
   print_plist | tee "$home_plist"
@@ -152,38 +163,8 @@ update_theme() {
   osascript "$homebrew_prefix"/bin/switch-terminal-theme "$current_theme"
 }
 
-while (( $# > 0 )); do
-  case $1 in
-  --overwrite-plist)
-    overwrite_plist
-    shift
-    ;;
-  --print-plist)
-    print_plist
-    shift
-    ;;
-  --restart-agent)
-    restart_agent
-    shift
-    ;;
-  --update-theme)
-    update_theme
-    shift
-    ;;
-  --time)
-    custom_time="$2"
-    shift 2
-    ;;
-  --day-theme)
-    day_theme="$2"
-    shift 2
-    ;;
-  --night-theme)
-    night_theme="$2"
-    shift 2
-    ;;
-  *)
-    shift
-    ;;
-  esac
-done
+# Execute commands
+$do_overwrite_plist && overwrite_plist
+$do_print_plist && print_plist
+$do_restart_agent && restart_agent
+$do_update_theme && update_theme
