@@ -25,10 +25,10 @@
   <array>
     <string>BIN_PATH</string>
     <string>--debug</string>
+THEME_ARGS
     <string>--overwrite-plist</string>
     <string>--restart-agent</string>
     <string>--update-theme</string>
-THEME_ARGS
   </array>
 
   <key>RunAtLoad</key>
