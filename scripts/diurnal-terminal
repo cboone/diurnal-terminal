@@ -155,15 +155,12 @@ restart_agent() {
 
   log "Reloading LaunchAgent for next event"
 
-  # Background the reload to avoid killing ourselves while running
-  (
-    sleep 1
-    launchctl bootout "$domain/$plist_name" 2>>"$log_file" || true
-    if ! launchctl bootstrap "$domain" "$plist_path" 2>>"$log_file"; then
-      echo "ERROR: Failed to bootstrap LaunchAgent" >>"$log_file"
-    fi
-  ) &
-  disown
+  # Use nohup to ensure reload survives after script exits (important when run via LaunchAgent)
+  nohup bash -c "
+    sleep 2
+    launchctl bootout $domain/$plist_name 2>>$log_file || true
+    launchctl bootstrap $domain $plist_path 2>>$log_file || echo 'ERROR: Failed to bootstrap' >>$log_file
+  " </dev/null >/dev/null 2>&1 &
 }
 
 update_theme() {
@@ -176,3 +173,4 @@ $do_overwrite_plist && overwrite_plist
 $do_print_plist && print_plist
 $do_restart_agent && restart_agent
 $do_update_theme && update_theme
+true  # Ensure script exits with 0
