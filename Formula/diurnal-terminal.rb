@@ -3,7 +3,7 @@ class DiurnalTerminal < Formula
   homepage "https://github.com/cboone/diurnal-terminal"
   url "https://github.com/cboone/diurnal-terminal.git", branch: "main"
   head "https://github.com/cboone/diurnal-terminal.git", branch: "main"
-  version "0.3.2"
+  version "0.3.3"
 
   depends_on "heliocron"
 
@@ -23,6 +23,14 @@ class DiurnalTerminal < Formula
     cp share/"diurnal-terminal.conf.example", config_path
     ohai "Created config at #{config_path}"
     ohai "Edit it with your coordinates, then run: brew services start diurnal-terminal"
+  end
+
+  def post_uninstall
+    plist_path = Pathname.new(Dir.home)/"Library/LaunchAgents/homebrew.mxcl.diurnal-terminal.plist"
+    if plist_path.exist?
+      system "launchctl", "bootout", "gui/#{Process.uid}/homebrew.mxcl.diurnal-terminal"
+      plist_path.unlink
+    end
   end
 
   def caveats
