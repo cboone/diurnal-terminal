@@ -4,7 +4,6 @@
 <dict>
   <key>Label</key>
   <string>PLIST_LABEL</string>
-
   <key>StartCalendarInterval</key>
   <dict>
     <key>Hour</key>
@@ -14,26 +13,21 @@
     <key>Second</key>
     <integer>SECOND</integer>
   </dict>
-
   <key>EnvironmentVariables</key>
   <dict>
     <key>PATH</key>
     <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
   </dict>
-
   <key>ProgramArguments</key>
   <array>
     <string>BIN_PATH</string>
     <string>--debug</string>
-THEME_ARGS
-    <string>--overwrite-plist</string>
+THEME_ARGS    <string>--overwrite-plist</string>
     <string>--restart-agent</string>
     <string>--update-theme</string>
   </array>
-
   <key>RunAtLoad</key>
   RUN_AT_LOAD
-
   <key>StandardErrorPath</key>
   <string>/tmp/PLIST_LABEL.log</string>
   <key>StandardOutPath</key>

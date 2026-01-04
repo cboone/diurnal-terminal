@@ -138,14 +138,19 @@ print_plist() {
     log "Switching to $next_theme at $event ($next_time)"
   fi
 
-  m4 -DHOUR="${schedule_time:0:2}" \
-     -DMINUTE="${schedule_time:3:2}" \
-     -DSECOND="${schedule_time:6:2}" \
+  # Strip leading zeros to avoid octal interpretation (08 and 09 are invalid octal)
+  local hour=$((10#${schedule_time:0:2}))
+  local minute=$((10#${schedule_time:3:2}))
+  local second=$((10#${schedule_time:6:2}))
+
+  m4 -DHOUR="$hour" \
+     -DMINUTE="$minute" \
+     -DSECOND="$second" \
      -DBIN_PATH="$homebrew_prefix/bin/$script_name" \
      -DPLIST_LABEL="$plist_name" \
      -DRUN_AT_LOAD="$run_at_load" \
      -DTHEME_ARGS="$theme_args" \
-     "$template"
+     "$template" | tr -s '\n'  # Remove consecutive blank lines that cause launchd bootstrap to fail
 }
 
 restart_agent() {
