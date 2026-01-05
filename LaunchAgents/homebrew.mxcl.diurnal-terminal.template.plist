@@ -26,6 +26,8 @@ THEME_ARGS    <string>--overwrite-plist</string>
     <string>--restart-agent</string>
     <string>--update-theme</string>
   </array>
+  <key>AbandonProcessGroup</key>
+  <true/>
   <key>RunAtLoad</key>
   <false/>
   <key>StandardErrorPath</key>
