@@ -3,7 +3,7 @@ class DiurnalTerminal < Formula
   homepage "https://github.com/cboone/diurnal-terminal"
   url "https://github.com/cboone/diurnal-terminal.git", branch: "main"
   head "https://github.com/cboone/diurnal-terminal.git", branch: "main"
-  version "0.3.4"
+  version "0.3.5"
 
   depends_on "heliocron"
 
