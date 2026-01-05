@@ -87,6 +87,20 @@ Check the LaunchAgent status:
 launchctl print gui/$(id -u)/homebrew.mxcl.diurnal-terminal
 ```
 
+## Uninstalling
+
+```bash
+brew services stop diurnal-terminal
+brew uninstall diurnal-terminal
+```
+
+**Multi-user setup:** If you run brew as a different user than the one logged into the GUI, the automatic cleanup won't find the LaunchAgent. Clean up manually as the GUI user:
+
+```bash
+launchctl bootout gui/$(id -u)/homebrew.mxcl.diurnal-terminal
+rm ~/Library/LaunchAgents/homebrew.mxcl.diurnal-terminal.plist
+```
+
 ## How It Works
 
 1. The script reads your coordinates from `~/.config/diurnal-terminal.conf`

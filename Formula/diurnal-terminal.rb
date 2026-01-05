@@ -38,6 +38,11 @@ class DiurnalTerminal < Formula
       To start diurnal-terminal:
         1. Edit ~/.config/diurnal-terminal.conf with your coordinates
         2. Run: brew services start diurnal-terminal
+
+      Multi-user setup: If you run brew as a different user than the one
+      logged into the GUI, you may need to manually clean up after uninstall:
+        launchctl bootout gui/$(id -u)/homebrew.mxcl.diurnal-terminal
+        rm ~/Library/LaunchAgents/homebrew.mxcl.diurnal-terminal.plist
     EOS
   end
 
