@@ -20,7 +20,6 @@ _diurnal-terminal() {
     '--overwrite-plist[Create new plist scheduled for the next event]'
     '--print-plist[Print plist scheduled for the next event]'
     '--restart-agent[Reload the LaunchAgent]'
-    '--run-at-load[Run immediately when agent loads]'
     '--time[Override trigger time for plist generation]:time (HH\:MM\:SS):'
     '--update-theme[Apply the correct theme for the current time]'
   )

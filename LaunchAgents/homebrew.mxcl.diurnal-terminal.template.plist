@@ -27,7 +27,7 @@ THEME_ARGS    <string>--overwrite-plist</string>
     <string>--update-theme</string>
   </array>
   <key>RunAtLoad</key>
-  RUN_AT_LOAD
+  <false/>
   <key>StandardErrorPath</key>
   <string>/tmp/PLIST_LABEL.log</string>
   <key>StandardOutPath</key>

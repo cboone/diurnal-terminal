@@ -3,7 +3,7 @@ class DiurnalTerminal < Formula
   homepage "https://github.com/cboone/diurnal-terminal"
   url "https://github.com/cboone/diurnal-terminal.git", branch: "main"
   head "https://github.com/cboone/diurnal-terminal.git", branch: "main"
-  version "0.3.3"
+  version "0.3.4"
 
   depends_on "heliocron"
 
@@ -42,7 +42,7 @@ class DiurnalTerminal < Formula
   end
 
   service do
-    run [opt_bin/"diurnal-terminal", "--overwrite-plist", "--restart-agent", "--run-at-load", "--update-theme"]
+    run [opt_bin/"diurnal-terminal", "--overwrite-plist", "--restart-agent", "--update-theme"]
     run_type :immediate
     environment_variables PATH: std_service_path_env
   end

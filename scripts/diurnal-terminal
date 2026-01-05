@@ -21,7 +21,6 @@ Options:
   --debug                               Log more output
   --day-theme THEME                     Override day theme from config
   --night-theme THEME                   Override night theme from config
-  --run-at-load                         Run immediately when agent loads (for initial setup)
   --time HH:MM:SS                       Override trigger time (for plist generation)
 EOF
 )
@@ -45,7 +44,6 @@ night_theme=""
 do_overwrite_plist=false
 do_print_plist=false
 do_restart_agent=false
-do_run_at_load=false
 do_update_theme=false
 
 while (( $# > 0 )); do
@@ -55,7 +53,6 @@ while (( $# > 0 )); do
   --overwrite-plist) do_overwrite_plist=true; shift ;;
   --print-plist)     do_print_plist=true; shift ;;
   --restart-agent)   do_restart_agent=true; shift ;;
-  --run-at-load)     do_run_at_load=true; shift ;;
   --time)            custom_time="$2"; shift 2 ;;
   --update-theme)    do_update_theme=true; shift ;;
   *)                 shift ;;
@@ -113,13 +110,8 @@ print_plist() {
   readonly template="$latest/share/$plist_name.template.plist"
   [[ ! -e $template ]] && die "plist template not found: $template"
 
-  local run_at_load="<false/>"
   local schedule_time="${custom_time:-$next_time}"
   local theme_args=""
-
-  if $do_run_at_load; then
-    run_at_load="<true/>"
-  fi
 
   if [[ -n $day_theme ]]; then
     theme_args+="    <string>--day-theme</string>
@@ -148,7 +140,6 @@ print_plist() {
      -DSECOND="$second" \
      -DBIN_PATH="$homebrew_prefix/bin/$script_name" \
      -DPLIST_LABEL="$plist_name" \
-     -DRUN_AT_LOAD="$run_at_load" \
      -DTHEME_ARGS="$theme_args" \
      "$template" | tr -s '\n'  # Remove consecutive blank lines that cause launchd bootstrap to fail
 }

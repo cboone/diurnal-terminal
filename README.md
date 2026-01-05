@@ -44,7 +44,6 @@ Options:
   --debug                   Log more output
   --day-theme THEME         Override day theme from config
   --night-theme THEME       Override night theme from config
-  --run-at-load             Run immediately when agent loads (for initial setup)
   --time HH:MM:SS           Override trigger time (for plist generation)
 ```
 
