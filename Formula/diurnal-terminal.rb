@@ -10,6 +10,7 @@ class DiurnalTerminal < Formula
   def install
     bin.install "scripts/diurnal-terminal"
     bin.install "scripts/diurnal-terminal-switch-theme.applescript" => "switch-terminal-theme"
+    prefix.install "LaunchAgents/homebrew.mxcl.diurnal-terminal.plist"
     (share).install "LaunchAgents/homebrew.mxcl.diurnal-terminal.template.plist"
     (share).install "config/diurnal-terminal.conf" => "diurnal-terminal.conf.example"
     zsh_completion.install "completions/_diurnal-terminal"
@@ -47,9 +48,7 @@ class DiurnalTerminal < Formula
   end
 
   service do
-    run [opt_bin/"diurnal-terminal", "--overwrite-plist", "--restart-agent", "--update-theme"]
-    run_type :immediate
-    environment_variables PATH: std_service_path_env
+    name macos: "homebrew.mxcl.diurnal-terminal"
   end
 
   test do
