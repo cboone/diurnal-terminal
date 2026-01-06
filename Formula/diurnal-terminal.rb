@@ -3,7 +3,7 @@ class DiurnalTerminal < Formula
   homepage "https://github.com/cboone/diurnal-terminal"
   url "https://github.com/cboone/diurnal-terminal.git", branch: "main"
   head "https://github.com/cboone/diurnal-terminal.git", branch: "main"
-  version "0.4.0"
+  version "0.4.1"
 
   depends_on "heliocron"
 
@@ -39,6 +39,11 @@ class DiurnalTerminal < Formula
       To start diurnal-terminal:
         1. Edit ~/.config/diurnal-terminal.conf with your coordinates
         2. Run: brew services start diurnal-terminal
+
+      To upgrade: Stop the service first for a clean transition:
+        brew services stop diurnal-terminal
+        brew upgrade diurnal-terminal
+        brew services start diurnal-terminal
 
       Multi-user setup: If you run brew as a different user than the one
       logged into the GUI, you may need to manually clean up after uninstall:

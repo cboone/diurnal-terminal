@@ -89,6 +89,16 @@ Check the LaunchAgent status:
 launchctl print gui/$(id -u)/homebrew.mxcl.diurnal-terminal
 ```
 
+## Upgrading
+
+Stop the service before upgrading to ensure a clean transition:
+
+```bash
+brew services stop diurnal-terminal
+brew upgrade diurnal-terminal
+brew services start diurnal-terminal
+```
+
 ## Uninstalling
 
 ```bash
