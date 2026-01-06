@@ -77,8 +77,8 @@ readonly effective_night_theme="${night_theme:-$NIGHT_THEME}"
 readonly heliocron_output=$("$homebrew_prefix"/bin/heliocron --latitude "$LATITUDE" --longitude "$LONGITUDE" report)
 debug "$heliocron_output"
 debug ''
-readonly sunrise_time=${heliocron_output:20:8}
-readonly sunset_time=${heliocron_output:55:8}
+readonly sunrise_time=$(echo "$heliocron_output" | grep "^Sunrise is at:" | grep -oE '[0-9]{2}:[0-9]{2}:[0-9]{2}')
+readonly sunset_time=$(echo "$heliocron_output" | grep "^Sunset is at:" | grep -oE '[0-9]{2}:[0-9]{2}:[0-9]{2}')
 
 # Determine current theme based on time of day
 readonly current_hhmm=${command_run_time:0:5}

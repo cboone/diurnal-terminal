@@ -20,6 +20,8 @@ DAY_THEME=GitHub Light
 NIGHT_THEME=GitHub Dark
 ```
 
+**Note:** Coordinates must use cardinal direction suffixes: `N` or `S` for latitude, `E` or `W` for longitude. For example, San Francisco is `37.783N` latitude and `122.417W` longitude.
+
 Start the service:
 
 ```bash
