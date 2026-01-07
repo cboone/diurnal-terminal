@@ -2,11 +2,14 @@
 # shellcheck disable=SC2199
 # set -x
 
-readonly command_run_time=$(date '+%H:%M:%S')
-readonly script_name=$(basename "$0")
-readonly homebrew_prefix=${HOMEBREW_PREFIX:-$(brew --prefix)}
+command_run_time=$(date '+%H:%M:%S')
+readonly command_run_time
+script_name=$(basename "$0")
+readonly script_name
+homebrew_prefix=${HOMEBREW_PREFIX:-$(brew --prefix)}
+readonly homebrew_prefix
 readonly plist_name="homebrew.mxcl.$script_name"
-readonly usage=$(cat <<EOF
+usage=$(cat <<EOF
 $script_name: Automatically switch Terminal themes at sunrise and sunset
 
 Usage:
@@ -24,6 +27,7 @@ Options:
   --time HH:MM:SS                       Override trigger time (for plist generation)
 EOF
 )
+readonly usage
 
 # Parse flags that affect logging
 [[ " $* " =~ " --debug " ]] && readonly debug=debug
@@ -32,9 +36,8 @@ debug() { [[ $debug ]] && echo "$@" >&2; }
 log() { [[ $verbose || $debug ]] && echo "$@" >&2; }
 die() { echo "$@"; exit 1; }
 
-# shellcheck disable=SC2199
 if (( $# == 0 )) || [[ " $* " =~ ( --help | -h ) ]]; then
-  die "$usage" '\n\n'
+  die "$usage"
 fi
 
 # Parse all arguments first
@@ -74,11 +77,14 @@ readonly effective_day_theme="${day_theme:-$DAY_THEME}"
 readonly effective_night_theme="${night_theme:-$NIGHT_THEME}"
 
 # Calculate sun times
-readonly heliocron_output=$("$homebrew_prefix"/bin/heliocron --latitude "$LATITUDE" --longitude "$LONGITUDE" report)
+heliocron_output=$("$homebrew_prefix"/bin/heliocron --latitude "$LATITUDE" --longitude "$LONGITUDE" report)
+readonly heliocron_output
 debug "$heliocron_output"
 debug ''
-readonly sunrise_time=$(echo "$heliocron_output" | grep "^Sunrise is at:" | grep -oE '[0-9]{2}:[0-9]{2}:[0-9]{2}')
-readonly sunset_time=$(echo "$heliocron_output" | grep "^Sunset is at:" | grep -oE '[0-9]{2}:[0-9]{2}:[0-9]{2}')
+sunrise_time=$(echo "$heliocron_output" | grep "^Sunrise is at:" | grep -oE '[0-9]{2}:[0-9]{2}:[0-9]{2}')
+readonly sunrise_time
+sunset_time=$(echo "$heliocron_output" | grep "^Sunset is at:" | grep -oE '[0-9]{2}:[0-9]{2}:[0-9]{2}')
+readonly sunset_time
 
 # Determine current theme based on time of day
 readonly current_hhmm=${command_run_time:0:5}
@@ -98,7 +104,8 @@ else
 fi
 
 readonly cellar="${HOMEBREW_CELLAR:-"$homebrew_prefix/Cellar"}/$script_name"
-readonly latest="$(find "$cellar" -maxdepth 1 -type d | sort -nr | head -n 1)"
+latest="$(find "$cellar" -maxdepth 1 -type d | sort -nr | head -n 1)"
+readonly latest
 
 # Functions
 overwrite_plist() {
@@ -146,7 +153,8 @@ print_plist() {
 
 restart_agent() {
   local plist_path="$HOME/Library/LaunchAgents/$plist_name.plist"
-  local domain="gui/$(id -u)"
+  local domain
+  domain="gui/$(id -u)"
   local log_file="/tmp/$plist_name.log"
 
   log "Reloading LaunchAgent for next event"

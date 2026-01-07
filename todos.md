@@ -2,6 +2,6 @@
 
 ## Active
 
-- [ ] Get script working
-
 ## Completed
+
+- [x] Get script working
